@@ -20,7 +20,7 @@ Here are the useful operations Jdic can do for you:
 + Merge dictionaries recursively, with up to 4 modes for handling conflicting arrays (replace, merge, new, append).
 + Diff & Patch features - get differences between two documents in compressed data (diff), and apply those differences to update documents (patch).
 + JSON Schema validation - with auto-validation on each document change.
-+ Consistent document checksuming - natively SHA-256, it allows to get a single checksum for the document, the checksum will always be the same on all systems.
++ Consistent document checksuming - no matter the system a single Jdic will always produce the same checksum
 + Depth features - you can crawl your document at certain depths only.
 + Strict features - input data will be serialized to a strict JSON format and output is guaranteed JSON serializable
 + Custom input serializer support - convert specific objects to the JSON data you want to.
