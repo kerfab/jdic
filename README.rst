@@ -61,7 +61,7 @@ Examples:
     j.checksum()
     >>> 'ebd240a9ae435649514086d13c20d9963ec2844a1f866b313919c55a7c3f7ccb' # Is consistent on all systems
 
-    j["a"].checksum() # Sub-iterables have Jdic methods / all sub-iterables implement their own checksum()
+    j["a"].checksum() # Sub-iterables have Jdic methods
     >>> '05a2013fbe17af7d58779ed96e0d74bd6fa3ce2726c1ebbd9f7dc33671b1c28e'
 
     j["a"] = None
