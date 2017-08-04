@@ -23,7 +23,7 @@ Here are the useful operations Jdic can do for you:
 + Consistent document checksuming - no matter the system a single Jdic will always produce the same checksum
 + Depth features - you can crawl your document at certain depths only.
 + Strict features - input data is serialized to a strict JSON format and output is guaranteed JSON serializable
-+ Custom input serializer support - convert specific objects to the JSON data you want to.
++ Custom input serializer support - convert specific objects to the JSON data representation you want to.
 + Cache features with change detection to accelerate some of the API calls.
 
 
