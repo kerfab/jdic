@@ -6,7 +6,7 @@ Overview:
 
 In most projects, manipulating JSON documents requires to reinvent the wheel on a lot of small features. With a team of developers, the errors are more likely to happen.
 
-Jdic aims to avoid JSON manipulation caveats: it is a ready-to-use library which aims to ease the manipulation of JSON-like documents, so that you can focus on your work instead of losing time in tedious document manipulations. The API is easy-to-use, and you will be started in no time.
+Jdic aims to avoid JSON manipulation caveats: it is a ready-to-use library which aims to ease the manipulation of JSON-like documents, so that you can focus on your work instead of losing time in tedious document manipulations. The API is easy-to-use and you will be started in no time.
 
 
 Features:
