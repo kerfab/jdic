@@ -17,7 +17,7 @@ Here are the useful operations Jdic can do for you:
 + Transparent JSON paths integration - for read and write operations, through an agnostic driver model. Currently MongoDB and Jsonpath-NG paths formats are natively supported.
 + Fast browsing of JSON documents - browse the entire data structure while getting useful values on each iteration: value, JSON path, parent, parent JSON path, depth, etc.
 + Find any value or subdocument matching exact values or MongoDB queries with `find` and `find_match` features 
-+ Merge features for fusioning dictionaries recursively, with up to 4 modes for handling conflicting arrays (replace, merge, new, append).
++ Merge dictionaries recursively, with up to 4 modes for handling conflicting arrays (replace, merge, new, append).
 + Diff & Patch features - so you can represent differences between two documents in compressed data (diff), and apply those differences to update documents (patch).
 + JSON Schema validation - if you need it, with auto-validation on each document change.
 + Consistent document checksuming - natively SHA-256, it allows to get a single checksum for the document, the checksum will always be the same on all systems.
