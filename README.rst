@@ -4,9 +4,7 @@ Jdic Documentation
 Overview:
 """""""""
 
-In most projects, manipulating JSON documents requires to reinvent the wheel on a lot of small features. 
-
-Jdic aims to avoid that: it is a ready-to-use library which aims to ease the manipulation of JSON-like documents, so that you can focus on your work instead of losing time in tedious document manipulations.
+In most projects, manipulating JSON documents requires to reinvent the wheel on a lot of small features. Jdic aims to avoid that: it is a ready-to-use library which aims to ease the manipulation of JSON-like documents, so that you can focus on your work instead of losing time in tedious document manipulations.
 
 
 Features:
