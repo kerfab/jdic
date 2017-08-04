@@ -6,7 +6,7 @@ Overview:
 
 In most projects, manipulating JSON documents requires to reinvent the wheel on a lot of small features. With a team of developers, the errors are more likely to happen.
 
-Jdic aims to avoid JSON manipulation caveats: it is a ready-to-use library which aims to ease the manipulation of JSON-like documents, so that you can focus on your work instead of losing time in tedious document manipulations.
+Jdic aims to avoid JSON manipulation caveats: it is a ready-to-use library which aims to ease the manipulation of JSON-like documents, so that you can focus on your work instead of losing time in tedious document manipulations. The API is easy-to-use, and you will be started in no time.
 
 
 Features:
@@ -14,7 +14,7 @@ Features:
 
 Here are the useful operations Jdic can do for you:
 
-+ Easy to use - the API interface is minimal and is easy to learn and use.
++ Easy to use - 
 + Transparent JSON paths integration - for read and write operations, through an agnostic driver model. Currently MongoDB and Jsonpath-NG paths formats are natively supported.
 + Fast browsing of JSON documents - browse the entire data structure while getting useful values on each iteration: value, JSON path, parent, parent JSON path, depth, etc.
 + Find and Find-Match feature for quickly finding any value or subdocument matching MongoDB-like queries.
