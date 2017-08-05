@@ -2,9 +2,11 @@
 
 ## Overview:
 
-In most projects, manipulating JSON documents requires to reinvent the wheel on a lot of small features. 
+In most projects, manipulating JSON documents requires to reinvent the wheel on a lot of small features, or to use a varied set of external packages.
 
-Jdic aims to avoid that: it is a ready-to-use library which aims to ease the manipulation of JSON-like documents, so that you can focus on your work instead of losing time in tedious document manipulations.
+Jdic aims to avoid that: it is a ready-to-use library which eases the manipulation of JSON-like documents, so that you can focus on your work instead of losing time in tedious document manipulations. 
+
+It performs its own work, but also embeds mission-critical 3rd party libraries and unite them all within a comprehensive easy-to-use API.
 
 
 ## Features:
@@ -102,7 +104,7 @@ Here are the useful operations Jdic can do for you:
 
 Instantiations of Jdic objects is made through the jdic() function which will decide for the type of Jdic object to instantiate and return.
 
-+ `obj`: any list or dictionary. Sequence and Mapping equivalents will be casted to `dict` and `list`.
++ `obj`: any list or dictionary. Sequence and Mapping equivalents will be casted to `list` and `dict`.
 
 + `schema`: optional, must be a JSON Schema in the form of a `dict`. If provided, all changes affecting the Jdic will be validated against the schema.
 
