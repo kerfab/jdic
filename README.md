@@ -27,8 +27,6 @@ Here are the useful operations Jdic can do for you:
 
 ## Examples:
 
-.. code:: python
-
     from jdic import jdic
 
     o = { "a" : { "b" : { "c" : 1 } } } 
@@ -263,8 +261,6 @@ jsonpath_ng: https://github.com/h2non/jsonpath-ng
 
 ## TODO:
 
-+ Enhance Github's README readability
-+ Upgrade MatchResult and wrap browse() and jsonpath_ng results applying getattr methods on all members
 + Pip package
 + Readthedocs documentation
 + Documentation on drivers implementation
