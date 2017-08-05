@@ -14,7 +14,6 @@ Features:
 
 Here are the useful operations Jdic can do for you:
 
-+ Easy to use - the API interface is minimal and is easy to learn and use.
 + Transparent JSON paths integration - for read and write operations, through an agnostic driver model. Currently MongoDB and Jsonpath-NG paths formats are natively supported.
 + Fast browsing of JSON documents - browse the entire data structure while getting useful values on each iteration: value, JSON path, parent, parent JSON path, depth, etc.
 + Find and Find-Match feature for quickly finding any value or subdocument matching MongoDB-like queries.
