@@ -15,7 +15,7 @@ Here are the useful operations Jdic can do for you:
 + Fast browsing of JSON documents - browse the entire data structure while getting useful values on each iteration: value, JSON path, parent, parent JSON path, depth, etc.
 + Find, Find-Keys and Find-Match features for quickly finding any key or value, or subdocument matching MongoDB-like queries.
 + Merge features for fusioning objects recursively, with up to 4 modes for handling conflicting arrays (replace, merge, new, append).
-+ Diff & Patch features - so you can represent differences between two documents in compressed data (diff), and apply those differences to update documents (patch).
++ Diff & Patch features - so you can represent differences between two documents in small data sets (diff), and apply those differences to update documents (patch).
 + JSON Schema validation - if you need it, with auto-validation on each document change.
 + Consistent document checksuming - natively SHA-256, it allows to get a single checksum for the document, the checksum will always be the same on all systems.
 + Depth features - you can crawl your document at certain depths only.
@@ -29,7 +29,7 @@ Here are the useful operations Jdic can do for you:
 
     from jdic import jdic
 
-    o = { "a" : { "b" : { "c" : 1 } } } 
+    o = {"a" : {"b" : {"c" : 1}}}
     j = jdic(o) # Accepts dicts and lists or Mapping, Sequence
 
     paths = [m.path for m in j.find(1)] # Find path for a value as-is
@@ -46,8 +46,8 @@ Here are the useful operations Jdic can do for you:
 
     paths = [m.path for m in j.find_match({  # Complex Mongo-like queries are permitted
         "$and" : [
-            { "b.c": {"$exists" : True} },
-            { "b.d": {"$exists" : False} }
+            {"b.c": {"$exists" : True}},
+            {"b.d": {"$exists" : False}}
         ]
     })]
     >>> ["a"]
@@ -63,36 +63,36 @@ Here are the useful operations Jdic can do for you:
     >>> 69d7d33051c5e05aa72f55a9a8e30a73da8d4afaa37127b9ea7ee29403aa9d3f # Change detection from child to parent
 
     j = jdic(o)
-    p = { "a" : { "e" : { "f" : -1 } } }
+    p = {"a" : {"e" : {"f" : -1 }}}
     diff = j.diff(p)
     >>> [[["a"], {"e": {"f": -1}}]] # A diff stanza - on larger documents the diffs are smaller than documents
 
-    j.patch(diff)
+    j = j.patch(diff) # Patch does not modify the original object but returns a patched version
     j == p # Jdic objects can be transparently compared with dict or list objects 
     >>> True 
 
-    q = { "a" : { "b" : { "d" : 2 } } }
+    q = {"a" : {"b" : {"d" : 2}}}
     j.merge(q)
-    >>> { "a": { "b": { "c": 1, "d": 2 } } } # Handles recursive merge
+    >>> {"a": {"b": {"c": 1, "d": 2}}} # Handles recursive merge
 
-    j = jdic(o, schema = { 'type' : 'object' , 'properties' : { 'a' : { 'type' : 'object' } } }) # Correct Schema
+    j = jdic(o, schema = {'type' : 'object' , 'properties' : {'a' : {'type' : 'object'}}}) # Correct Schema
     j['a'] = 3 # instant detection of schema violation (exception)
     >>> Traceback (most recent call last): ...
 
     # Agnostic enumerations with a revised enumerate() function
     from jdic import enumerate 
     y, z = [1,2,3], {'a':1, 'b':2}
-    for k, v in enumerate(y): # Acts just as the original enumerate()
+    for k, v in enumerate(y): # Acts just as the original enumerate() for lists
         y[k] = v
-    for k, v in enumerate(z): # But it allows agnostic dict browsing the same way!
+    for k, v in enumerate(z): # But it allows agnostic dict enumeration in the same way!
         z[k] = v
 
-    j = jdic({'a' : [ {'b' : 1}, {'b' : 2}, {'b' : 3} ]}, driver = 'jsonpath_ng')
+    j = jdic({'a' : [{'b': 1}, {'b': 2}, {'b': 3}]}, driver = 'jsonpath_ng')
     j['a[*].b'] = 0 # Reassign the value to all locations at once!
-    >>> { "a": [ {"b": 0}, {"b": 0}, {"b": 0} ] }
+    >>> {"a": [{"b": 0}, {"b": 0}, {"b": 0}]}
 
     del('a[*].b') # Also works with del()
-    >>> { "a": [ {}, {}, {} ] }
+    >>> {"a": [{}, {}, {}]}
 
 
 ## Jdic object instantiation:
@@ -100,14 +100,13 @@ Here are the useful operations Jdic can do for you:
 
 ### `jdic(obj, schema = None, serializer = None, driver = None):`
 
-
 Instantiations of Jdic objects is made through the jdic() function which will decide for the type of Jdic object to instantiate and return.
 
 + `obj`: any list or dictionary. Sequence and Mapping equivalents will be casted to `dict` and `list`.
 
 + `schema`: optional, must be a JSON Schema in the form of a `dict`. If provided, all changes affecting the Jdic will be validated against the schema.
 
-+ `serializer`: optional, your custom serialization function. It will be called to transform non-standard object types into standard JSON types. If not provided, exotic types are transformed to `str`. It is possible to use `settings.serialize_custom_function` instead, to globally specifiy a serializing function. The custom serializer function, if used, must return a JSON compliant data type: None, bool, str, int, float, list, dict.
++ `serializer`: optional, your custom serialization function. It will be called to transform non-standard object types into standard JSON types. If not provided, exotic types are transformed to `str`. It is possible to use `settings.serialize_custom_function` instead, to globally specify a serializing function. The custom serializer function, if used, must return a JSON compliant data type: None, bool, str, int, float, list, dict.
 
 + `driver`: optional, a string representing the driver to use (`mongo` and `jsonpath_ng` are natively implemented). It is possible to use `settings.json_path_driver` instead, to globally specify a driver.
 
@@ -125,7 +124,7 @@ Recurse on all Jdic elements, yielding a `MatchResult` object on each iteration.
 
 ### `checksum(algo='sha256'):`
 
-Returns an ASCII checksum representing the content and data types of the object. Checksums are consistent from an execution to another and can be safely use for content change detection or objects comparisons. The checksum is cached and is only recalculated if changes occured.
+Returns an ASCII checksum representing the content and data types of the object. Checksums are consistent from an execution to another and can be safely used for content change detection or objects comparisons. The checksum is cached and is only recalculated if changes occured.
 
 + `algo`: any algorithm supported by the `hashlib` Python library
 
@@ -145,7 +144,7 @@ Returns an object (a diff *stanza*) representing the differences between the Jdi
 
 ### `enumerate(sort = False)`:
 
-Agnostic and non-recursive enumeration of each entry in the current object. It yields a `(k, v)` tuple, where `k` is either an integer index when object is a list, and a string key when object is a dict. `v` is always the value. `enumerate()` is also available as a standalone function within the Jdic package.
+Agnostic and non-recursive enumeration of each entry in the current object. It yields a `(k, v)` tuple, where `k` is either an integer index when object is a list, and a string key when object is a dict. `v` is always the value. `enumerate()` is also available as a standalone function within the Jdic package: `from jdic import enumerate`.
 
 + `sort` : if True, sorts the dictionary keys alphabetically. Only sort dictionary keys, not lists.
 
@@ -239,7 +238,7 @@ Returns the full JSON path of the current Jdic object. Note that the JSON path f
 
 ### `raw()`:
 
-Returns a standalone non-Jdic object representing the JSON document. The result is a `list` or `dict`, depending of the type of the Jdic document (Sequence or Mapping). This function is useful for passing a Jdic in the form of pure Python basic types for compatibility purposes.
+Returns a standalone non-Jdic object representing the JSON document. The result is a `list` or `dict`, depending of the type of the Jdic document (Sequence or Mapping). This function is useful for passing a Jdic in the form of pure Python basic types for compatibility purposes. The results are cached and rebuilt only if changes occured.
 
 ### `validate(schema = None)`:
 
@@ -261,6 +260,7 @@ jsonpath_ng: https://github.com/h2non/jsonpath-ng
 
 ## TODO:
 
++ MatchResult documentation
 + Pip package
 + Readthedocs documentation
 + Documentation on drivers implementation

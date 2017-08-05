@@ -262,8 +262,10 @@ def test_find_keys():
 
 def test_merge():
     o = jdic({ 'a' : 1, 'b' : 2})
-    o.merge([1,2])
-    print(o)
+    o.merge({'a':2,'b':3})
+    assert o == {'a':2, 'b':3}
+    o.merge({'a':[1,2]})
+    assert o == {'a':[1,2], 'b':3}
 
 def test_match():
     o = jdic({'e':[{'f':'4'}]})

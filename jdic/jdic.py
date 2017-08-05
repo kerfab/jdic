@@ -22,7 +22,7 @@ _json_leaves_types = [
     type(None)
 ]
 
-class MatchResult:
+class MatchResult(object):
     def __init__(self, **kwargs):
         self._obj = {}
         for k in kwargs:
@@ -38,7 +38,7 @@ class MatchResult:
     def __getitem__(self, item):
         return self._obj[item]
 
-class Jdic:
+class Jdic(object):
 
     _attr_whitelist = [
         'count',
@@ -96,7 +96,7 @@ class Jdic:
     def __copy__(self):
         return self.new()
 
-    def __deepcopy__(self, _ignored = None):
+    def __deepcopy__(self, _):
         return self.new()
 
     def __delitem__(self, path):
@@ -110,7 +110,7 @@ class Jdic:
         if self._driver.is_a_path(path):
             parents = self._driver.get_parent(self._obj, path)
         else:
-            parents = [ (self, path) ]
+            parents = [(self, path)]
         for parent, key in parents:
             del(parent._obj[key])
             parent._flag_modified()
@@ -155,11 +155,11 @@ class Jdic:
         if self._driver.is_a_path(path):
             parents = self._driver.get_parent(self._obj, path)
         else:
-            parents = [ (self, path) ]
+            parents = [(self, path)]
         for parent, key in parents:
             if self._is_iterable(value):
                 parent_path_keys = self._driver.path_to_keys(parent._path)
-                child_path = self._driver.keys_to_path(parent_path_keys + [ key ])
+                child_path = self._driver.keys_to_path(parent_path_keys + [key])
                 value = jdic(value, _parent = parent, _key = key)
             parent._obj[key] = value
             parent._flag_modified()
@@ -393,7 +393,7 @@ class Jdic:
     def find_keys(self, keys, mode = "any", sort = False, 
                   limit = None, depth = None, maxdepth = None):
         if type(keys) is not list:
-            keys = [ keys ]
+            keys = [keys]
         for m in self.browse(sort = sort, depth = depth, maxdepth = maxdepth):
             if isinstance(m.value, Jdic):
                 if self._keys_in(m.value, keys, mode):
@@ -473,16 +473,13 @@ class Jdic:
         r = type(obj)()
         for k, v in jdic_enumerate(obj):
             if isinstance(v, Jdic):
-                v = v.raw()
+                v = v.raw(_cache = _cache)
             if isinstance(r, dict):
                 r[k] = v
             else:
                 r.append(v)
+        self._cache['raw'] = r
         return r
-
-        res = self._output_json_serialize(self._obj)
-        self._cache['raw'] = res
-        return res
 
     def validate(self, schema = None):
         if schema != None:

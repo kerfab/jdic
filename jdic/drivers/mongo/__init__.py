@@ -1,88 +1,113 @@
+"""The Mongo driver for Jdic"""
+
 from collections import Mapping, Sequence
-from jdic.mongoquery.mongoquery import Query
+from mongoquery import Query
 from jdic import jdic
 
-class Driver():
-    _root_strings = [ '' ]
+class Driver(object):
+    """The driver class"""
+    _root_strings = ['']
+    _invalid_keys_startswith = ['$']
+    _invalid_keys_contains = ['.']
 
-    def __init__(self):
-        self._invalid_keys_startswith = [ '$' ]
-        self._invalid_keys_contains = [ '.' ]
-
-    def _key_obj(self, k, obj):
+    @staticmethod
+    def _key_obj(k, obj):
+        """Returns the object and the key, with key type transformed according
+        to object type.
+        """
         if k == '' or isinstance(obj, Mapping):
             return k, obj
         elif isinstance(obj, Sequence):
             return int(k), obj
         raise KeyError('Key "{}" was not found in object'.format(k))
 
-    def is_root_path(self, path):
-        return path in self._root_strings
-
-    def is_a_path(self, key):
-        if isinstance(key, str) and (key == '' or key.find('.') != -1):
-            return True
-        return False
-
-    def get_new_path(self):
-        return ''
-
-    # Transform keys into a single path
-    def keys_to_path(self, keys):
-        p = ''
-        for k in keys:
-            p += '.'+str(k) if p else str(k)
-        return p
-
-    # Transforms a str path to series of keys
-    def path_to_keys(self, path):
-        if type(path) is not str:
-            return str(path)
-        return list(path.split('.'))
-
-    # Updates a path to include a new terminating key / index
-    def add_to_path(self, path, key):
+    @classmethod
+    def add_to_path(cls, path, key):
+        """Add a key at the end of a JSON path"""
+        cls.control_invalid_key(key)
         if path:
             return path + '.' + str(key)
         return str(key)
 
-    # Returns a single value at path on obj
-    def get_value_at_path(self, obj, path):
-        keys_lists = self.path_to_keys(path)
-        for k in keys_lists:
-            k, obj = self._key_obj(k, obj)
-            obj = obj[k]
-        return obj
+    @classmethod
+    def control_invalid_key(cls, k):
+        """Raises an exception if a key format is not valid"""
+        if type(k) not in [str, int]:
+            raise KeyError('Forbidden key type "{}"'.format(type(k)))
+        if type(k) is int:
+            return
+        if type(k) is str and not k:
+            raise KeyError('Key cannot be an empty string')
+        for char in cls._invalid_keys_startswith:
+            if k.startswith(char):
+                raise KeyError('Character "{}" forbidden in key "{}"'
+                               .format(char, k))
+        for char in cls._invalid_keys_contains:
+            if k.find(char) != -1:
+                raise KeyError('Character "{}" forbidden in key "{}"'
+                               .format(char, k))
 
-    def get_parent(self, obj, path):
-        keys = self.path_to_keys(path)
+    @staticmethod
+    def get_new_path():
+        """Returns a JSON path pointing to root of document"""
+        return ''
+
+    @classmethod
+    def get_parent(cls, obj, path):
+        """Returns the parent of the value pointed by JSON path"""
+        keys = cls.path_to_keys(path)
         nb_keys = len(keys)
         for i, k in enumerate(keys):
             if i == nb_keys - 1:
-                k, obj = self._key_obj(keys[-1], obj)
-                return [ (obj, k) ]
+                k, obj = cls._key_obj(keys[-1], obj)
+                return [(obj, k)]
             try:
-                k, obj = self._key_obj(k, obj)
+                k, obj = cls._key_obj(k, obj)
                 obj = obj[k]
-            except:
+            except (TypeError, IndexError):
                 break
         raise Exception('NoParent', 'No parent for path {}'.format(path))
 
-    # Receives a string, must raise an error if invalid
-    def control_invalid_key(self, k):
-        if type(k) not in [str, int]:
-            raise KeyError('Forbidden key type "{}"'.format(type(k)))
-        if type(k) is str and not k:
-            raise KeyError('Key cannot be an empty string')
-        for c in self._invalid_keys_startswith:
-            if k.startswith(c):
-                raise KeyError('Character "{}" forbidden in key "{}"'.format(c, k))
-        for c in self._invalid_keys_contains:
-            if k.find(c) != -1:
-                raise KeyError('Character "{}" forbidden in key "{}"'.format(c, k))
-                
-    def match(self, obj, query):
+    @classmethod
+    def get_value_at_path(cls, obj, path):
+        """Returns the value pointed by JSON path"""
+        keys_lists = cls.path_to_keys(path)
+        for k in keys_lists:
+            k, obj = cls._key_obj(k, obj)
+            obj = obj[k]
+        return obj
+
+    @staticmethod
+    def is_a_path(key):
+        """True if is a JSON path, else False"""
+        if isinstance(key, str) and (key == '' or key.find('.') != -1):
+            return True
+        return False
+
+    @classmethod
+    def is_root_path(cls, path):
+        """True if is a JSON path for root document, else False"""
+        return path in cls._root_strings
+
+    @staticmethod
+    def keys_to_path(keys):
+        """Transforms a list of keys into a proper JSON path"""
+        path = ''
+        for k in keys:
+            path += '.'+str(k) if path else str(k)
+        return path
+
+    @staticmethod
+    def match(obj, query):
+        """Returns True if object matches the mongo query, else False"""
         if not isinstance(obj, Sequence) and not isinstance(obj, Mapping):
             return False
-        q = Query(query)
-        return q.match(obj)
+        query = Query(query)
+        return query.match(obj)
+
+    @staticmethod
+    def path_to_keys(path):
+        """Transforms an expression-less JSON path into a series of keys"""
+        if type(path) is not str:
+            return str(path)
+        return list(path.split('.'))
