@@ -101,13 +101,13 @@ Examples:
     >>> { "a": [ {}, {}, {} ] }
 
 
-Jdic object instanciation:
+Jdic object instantiation:
 """"""""""""""""""""""""""
 
 `jdic(obj, schema = None, serializer = None, driver = None):`
 -------------------------------------------------------------
 
-Instanciations of Jdic objects is made through the jdic() function which will decide for the type of Jdic object to instanciate and return.
+Instantiations of Jdic objects is made through the jdic() function which will decide for the type of Jdic object to instantiate and return.
 
 + `obj`: any list or dictionary. Sequence and Mapping equivalents will be casted to `dict` and `list`.
 
@@ -289,6 +289,7 @@ jsonpath_ng: https://github.com/h2non/jsonpath-ng
 TODO:
 """""
 
++ Upgrade MatchResult and wrap browse() and jsonpath_ng results applying getattr methods on all members
 + Pip package
 + Readthedocs documentation
 + Documentation on drivers implementation
