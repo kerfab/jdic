@@ -100,7 +100,7 @@ Here are the useful operations Jdic can do for you:
 ## Jdic object instantiation:
 
 
-### `jdic(obj, schema = None, serializer = None, driver = None):`
+### `jdic(obj, schema=None, serializer=None, driver=None):`
 
 Instantiations of Jdic objects is made through the jdic() function which will decide for the type of Jdic object to instantiate and return.
 
@@ -116,7 +116,7 @@ Instantiations of Jdic objects is made through the jdic() function which will de
 ## Jdic objects methods:
 
 
-### `browse(sort = False, depth = None, maxdepth = None):`
+### `browse(sort=False, depth=None, maxdepth=None):`
 
 Recurse on all Jdic elements, yielding a `MatchResult` object on each iteration.
 
@@ -144,13 +144,13 @@ Returns an object (a diff *stanza*) representing the differences between the Jdi
 
 + `obj`: any data
 
-### `enumerate(sort = False)`:
+### `enumerate(sort=False)`:
 
 Agnostic and non-recursive enumeration of each entry in the current object. It yields a `(k, v)` tuple, where `k` is either an integer index when object is a list, and a string key when object is a dict. `v` is always the value. `enumerate()` is also available as a standalone function within the Jdic package: `from jdic import enumerate`.
 
 + `sort` : if True, sorts the dictionary keys alphabetically. Only sort dictionary keys, not lists.
 
-### `find(value, sort = False, limit = None, depth = None, maxdepth = None)`:
+### `find(value, sort=False, limit=None, depth=None, maxdepth=None)`:
 
 Searches a value within the entire Jdic. Searches are strict (`==`).
 
@@ -160,7 +160,7 @@ Searches a value within the entire Jdic. Searches are strict (`==`).
 + `depth`: an integer - only the results from objects at *depth* will be yielded.
 + `maxdepth`: an integer - will not recurse on documents whose depth is above `maxdepth`.
 
-### `find_keys(keys, mode = "any", sort = False, limit = None, depth = None, maxdepth = None)`:
+### `find_keys(keys, mode="any", sort=False, limit=None, depth=None, maxdepth=None)`:
 
 Searches any sub-object containing `keys`. `keys` can be a single key or a list of keys. This function aims to facilitate finding sub-objects whose keys are known.
 
@@ -171,7 +171,7 @@ Searches any sub-object containing `keys`. `keys` can be a single key or a list 
 + `depth`: an integer - only the results from objects at *depth* will be yielded.
 + `maxdepth`: an integer - will not recurse on documents whose depth is above `maxdepth`.
 
-### `find_match(query, sort = False, limit = None, depth = None, maxdepth = None)`:
+### `find_match(query, sort=False, limit=None, depth=None, maxdepth=None)`:
 
 Finds all objects matching positive against `query`. Queries for `find_match()` are MongoDB-like queries, for both `mongo` and `jsonpath_ng` drivers. The underlying implementation is provided by the `mongoquery` Python library.
 
@@ -181,7 +181,7 @@ Finds all objects matching positive against `query`. Queries for `find_match()` 
 + `depth`: an integer - only the results from objects at *depth* will be yielded.
 + `maxdepth`: an integer - will not recurse on documents whose depth is above `maxdepth`.
 
-### `json(sort_keys = False, indent = 0, ensure_ascii = False)`:
+### `json(sort_keys=False, indent=0, ensure_ascii=False)`:
 
 A helper to dump Jdic objects as serialized JSON strings.
 
@@ -189,7 +189,7 @@ A helper to dump Jdic objects as serialized JSON strings.
 + `indent`: number of spaces to add on new blocks.
 + `ensure_ascii`: for a pure ASCII output (usually not recommended for anything else than printing binary data).
 
-### `leaves(sort = False, depth = None, maxdepth = None)`:
+### `leaves(sort=False, depth=None, maxdepth=None)`:
 
 Will yield a `MatchResult` on each leaf encountered in the document. A leaf is a terminal value within the JSON documents. Basically all values are leaves, except dicts and lists.
 
@@ -207,7 +207,7 @@ Returns `True` or `False` if the current Jdic object matches the Mongo-like quer
 
 + `query`: a Mongo-like query object
 
-### `merge(*objs, arr_mode = "replace")`:
+### `merge(*objs, arr_mode="replace")`:
 
 Will merge the current Jdic with one or multiple other objects (dicts or lists). It is not possible to merge a Jdic of type Mapping (dict) with a Sequence (list) or vice-versa. This limitation does not apply to sub-documents. Note that, unlike `patch()`, the method will change the state of the current object. If multiple args are provided then the next obj in `objs` is merged on the result of the previous merge operation.
 
@@ -222,7 +222,7 @@ Will merge the current Jdic with one or multiple other objects (dicts or lists).
 
 Returns an independant copy of the current Jdic, but inheriting its driver, schema and serializer. If the Jdic is a subdocument of another Jdic then it loses its parenthood information (detachment).
 
-### `parent(generation = 1)`:
+### `parent(generation=1)`:
 
 Returns the Jdic parent of the current object. The root document has no parent (`None`).
 
@@ -242,7 +242,7 @@ Returns the full JSON path of the current Jdic object. Note that the JSON path f
 
 Returns a standalone non-Jdic object representing the JSON document. The result is a `list` or `dict`, depending of the type of the Jdic document (Sequence or Mapping). This function is useful for passing a Jdic in the form of pure Python basic types for compatibility purposes. The results are cached and rebuilt only if changes occured.
 
-### `validate(schema = None)`:
+### `validate(schema=None)`:
 
 Validates the current Jdic with any JSON schema provided. If no argument is passed the Jdic is validated against its own schema, if it has any. Note that calling `validate()` without argument is useless if the Jdic is instantiated with a schema: in such case the Jdic object is constantly validated after a change. The schema validation features are supported by the `jsonschema` Python library.
 
