@@ -1,6 +1,2 @@
-from . import jdic as j
+from .jdic import Jdic, JdicMapping, JdicSequence, jdic, jdic_enumerate as enumerate
 from . import settings
-
-jdic = j.jdic
-Jdic = j.Jdic
-jsettings = settings

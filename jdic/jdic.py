@@ -79,7 +79,7 @@ class Jdic:
         if self._parent == None:
             self._path = self._driver.get_new_path()
             self._serializer = serializer
-            self._depth = 1
+            self._depth = 0
         else:
             self._path = self._driver.add_to_path(self._parent._path, self._key)
             self._serializer = self._parent._serializer if serializer == None else serializer
@@ -174,30 +174,6 @@ class Jdic:
     # UNDERLYING FUNCTIONS
     ## 
 
-    def _debug_show_parents(self):
-        print('\n')
-        parent = self.parent()
-        while parent != None:
-            print('> ', id(parent), parent.path())
-            parent = parent.parent()
-        print('====')
-
-    def _enumerate(self, obj, sort = False):
-        if isinstance(obj, Mapping):
-            try:
-                keys = sorted(obj.keys()) if sort else obj
-            except:
-                keys = sorted(dict(obj).keys()) if sort else obj
-            for k in keys:
-                yield (k, obj[k])
-        elif isinstance(obj, Sequence):
-            try:
-                yield from enumerate(obj)
-            except:
-                yield from enumerate(list(obj))
-        else:
-            raise TypeError('Cannot enumerate objects of type "{}"'.format(type(obj)))
-
     def _flag_modified(self):
         self._cache = {}
         if self._parent != None:
@@ -234,17 +210,34 @@ class Jdic:
                 return True
         return False
 
-    def _is_limit_reached(self, results, limit):
+    def _is_limit_reached(self, nb, limit):
+        if limit == None:
+            return False
         if limit < 0:
             return False
-        if limit == len(results):
+        if limit >= nb:
             return True
 
     def _jdic_reload(self, obj):
-        if isinstance(obj, Jdic):
-            obj = obj._obj
-        self._obj = self._serialize_to_jdic(obj, parent = self)
-        self._flag_modified()
+         if isinstance(obj, Jdic):
+             obj = obj._obj
+         self._obj = self._serialize_to_jdic(obj, parent = self)
+         self._flag_modified()
+
+    def _keys_in(self, obj, keys, mode):
+        if not isinstance(obj, Mapping):
+            return False
+        if mode == "any":
+            for k in keys:
+                if k in obj:
+                    return True
+            return False
+        elif mode == "all":
+            for k in keys:
+                if k not in obj:
+                    return False
+            return True
+        raise ValueError('Invalid mode')
 
     def _match(self, obj, query):
         return self._driver.match(obj, query)
@@ -305,7 +298,7 @@ class Jdic:
         elif isinstance(iterable, Sequence):
             iterable = list(iterable)
         r = type(iterable)()
-        for k, v in self._enumerate(iterable):
+        for k, v in jdic_enumerate(iterable):
             if isinstance(r, dict):
                 k = str(k)
             v = self._input_serialize(v)
@@ -331,24 +324,29 @@ class Jdic:
     # PUBLIC FUNCTIONS
     ##
 
-    def browse(self, sort = False, depth = None, maxdepth = -1):
-        if maxdepth >= 0 and _curdepth >= maxdepth:
+    def browse(self, sort = False, depth = None, maxdepth = None, _start = True):
+        if maxdepth != None and maxdepth >= 0 and self._depth > maxdepth:
             return
-        for k, v in self._enumerate(self._obj, sort = sort):
+        if depth != None and self._depth > depth:
+            return
+        parent_path = None if self._parent == None else self._parent._path
+        if depth == None and _start:
+            yield MatchResult(parent = self._parent, parent_path = parent_path, key = self._key,
+                              value = self, path = self._path, depth = self._depth)
+        for k, v in jdic_enumerate(self._obj, sort = sort):
             path = self._driver.add_to_path(self._path, k)
-            yield MatchResult(parent = self, parent_path = self._path, key = k, value = v,
-                              path = path, depth = self._depth)
+            if depth == None or depth == self._depth:
+                yield MatchResult(parent = self, parent_path = self._path, key = k, 
+                                  value = v, path = path, depth = self._depth)
             if isinstance(v, Jdic):
-                yield from v.browse(sort = sort, depth = depth, maxdepth = maxdepth)
-            if depth != None and self._depth != depth:
-                continue
+                yield from v.browse(sort = sort, depth = depth, maxdepth = maxdepth, _start = False)
 
     def checksum(self, algo='sha256'):
         if 'checksum' in self._cache:
             return self._cache['checksum']
         hash = hashlib.new(algo)
         hash.update(type(self._obj).__name__.encode('utf-8'))
-        for k, v in self._enumerate(self._obj, sort = True):
+        for k, v in jdic_enumerate(self._obj, sort = True):
             if isinstance(v, Jdic):
                 s = "{}:{}:{}:{}".format(type(k).__name__, k, type(v).__name__, v.checksum())
             else:
@@ -361,14 +359,14 @@ class Jdic:
     def deepness(self):
         if 'deepness' in self._cache:
             return self._cache['deepness']
-        depth = self._depth
-        for v in self.all():
+        deepness = 0
+        for v in self.browse():
             if isinstance(v.value, Jdic):
                 c = v.value.depth()
-                if c > depth:
-                    depth = c
-        self._cache['deepness'] = depth
-        return depth
+                if c > deepness:
+                    deepness = c
+        self._cache['deepness'] = deepness
+        return deepness
 
     def depth(self):
         return self._depth
@@ -379,31 +377,33 @@ class Jdic:
         return json_delta.diff(self.raw(), obj, verbose = False)
 
     def enumerate(self, sort = False):
-        yield from self._enumerate(self._obj, sort = sort)
+        yield from jdic_enumerate(self._obj, sort = sort)
 
-    def find(self, value, sort = False, limit = -1, maxdepth = -1):
-        if not limit:
+    def find(self, value, sort = False, limit = None, depth = None, maxdepth = None):
+        if limit == 0:
             return
         nb = 0
-        for res in self.browse(sort = sort, maxdepth = maxdepth):
+        for res in self.browse(sort = sort, depth = depth, maxdepth = maxdepth):
             if res.value == value:
                 yield res
                 nb += 1
                 if self._is_limit_reached(nb, limit):
                     return
 
-    def find_match(self, query, f = "p", sort = False, limit = -1, maxdepth = -1):
-        if not limit or not maxdepth:
+    def find_keys(self, keys, mode = "any", sort = False, 
+                  limit = None, depth = None, maxdepth = None):
+        if type(keys) is not list:
+            keys = [ keys ]
+        for m in self.browse(sort = sort, depth = depth, maxdepth = maxdepth):
+            if isinstance(m.value, Jdic):
+                if self._keys_in(m.value, keys, mode):
+                    yield m
+
+    def find_match(self, query, sort = False, limit = None, depth = None, maxdepth = None):
+        if limit == 0 or not maxdepth == 0:
             return
         nb = 0
-        if self._match(self._obj, query):
-            parent_path = self._parent.path() if self._parent != None else None
-            yield MatchResult(parent = self._parent, parent_path = parent_path,
-                              key = None, path = self.path(), value = self, depth = 1)
-            nb += 1
-            if self._is_limit_reached(nb, limit):
-                return
-        for res in self.browse(sort = sort, maxdepth = maxdepth):
+        for res in self.browse(sort = sort, depth = depth, maxdepth = maxdepth):
             if self._match(res.value, query):
                 yield res
                 nb += 1
@@ -414,8 +414,8 @@ class Jdic:
         return json.dumps(self.raw(), sort_keys=sort_keys, 
                           indent=indent, ensure_ascii=ensure_ascii)
 
-    def leaves(self, sort = False, maxdepth = -1):
-        for res in self.browse(sort = sort, maxdepth = maxdepth):
+    def leaves(self, sort = False, depth = None, maxdepth = None):
+        for res in self.browse(sort = sort, depth = depth, maxdepth = maxdepth):
             if self._is_json_leaf(res.value):
                 yield res
 
@@ -433,12 +433,18 @@ class Jdic:
 
     def merge(self, *args, arr_mode = "replace"):
         for with_obj in args:
+            if ((isinstance(with_obj, Mapping) and not isinstance(self._obj, Mapping)) or
+                (not isinstance(with_obj, Mapping) and isinstance(self._obj, Mapping))):
+                raise TypeError('Cannot merge "{}" with "{}"'.format(type(self._obj), type(with_obj)))
             result = self._merge(self._obj, with_obj, arr_mode)
             self._jdic_reload(result)
         return self
 
-    def new(self):
-        return jdic(self._obj, driver = self._driver_name, schema = self._schema)
+    def new(self, _obj = None):
+        if _obj == None:
+            _obj = self._obj
+        return jdic(_obj, serializer = self._serializer,
+                    driver = self._driver_name, schema = self._schema)
 
     def parent(self, generation = 1):
         if generation < 1:
@@ -453,8 +459,9 @@ class Jdic:
         if not diff:
             return
         r = json_delta.patch(self.raw(), diff)
-        self._jdic_reload(r)
-        return self
+        if self._is_iterable(r):
+            return self.new(r)
+        return r
 
     def path(self):
         return self._path
@@ -464,7 +471,7 @@ class Jdic:
             return self._cache['raw']
         obj = _obj if _obj else self._obj
         r = type(obj)()
-        for k, v in self._enumerate(obj):
+        for k, v in jdic_enumerate(obj):
             if isinstance(v, Jdic):
                 v = v.raw()
             if isinstance(r, dict):
@@ -480,7 +487,7 @@ class Jdic:
     def validate(self, schema = None):
         if schema != None:
             return jsonschema.validate(self.raw(), schema)
-        elif schema == None:
+        elif schema == None and self._schema != None:
             return jsonschema.validate(self.raw(), self._schema)
         raise ValueError('The current object is not supervised by any schema')
 
@@ -505,3 +512,20 @@ def jdic(iterable, **kwargs):
         return JdicSequence(iterable, **kwargs)
     else:
         raise ValueError('Cannot create Jdic object from "{}"'.format(type(iterable)))
+
+def jdic_enumerate(obj, sort = False):
+    if isinstance(obj, Mapping):
+        try:
+            keys = sorted(obj.keys()) if sort else obj
+        except:
+            keys = sorted(dict(obj).keys()) if sort else obj
+        for k in keys:
+            yield (k, obj[k])
+    elif isinstance(obj, Sequence):
+        i = 0
+        for v in obj:
+            yield (i, v)
+            i += 1
+    else:
+        raise TypeError('Cannot enumerate objects of type "{}"'.format(type(obj)))
+

@@ -1,4 +1,4 @@
-from jdic import settings, jdic, Jdic
+from jdic import settings, jdic, Jdic, JdicSequence
 from copy import copy, deepcopy
 
 settings.json_path_driver = "mongo"
@@ -97,6 +97,18 @@ def test_copy_deepcopy():
     o['d'] = j
     assert o['d'] == {'da':'dc'}
 
+def test_depth_deepness():
+    o = jdic({'a':{'b':{'c':{'d':1}}}, 'e':True})
+    assert o['a.b.c'].depth() == 3
+    assert o.deepness() == 3
+    assert [m.value for m in o.browse(depth = 3)] == [1]
+    assert [m.value for m in o.leaves(depth = 3)] == [1]
+    assert [m.value for m in o.leaves(maxdepth = 2)] == [True]
+    assert [m.value for m in o.leaves(maxdepth = 3, sort = True)] == [1, True]
+    assert o.depth() == 0
+    o = jdic({})
+    assert o.deepness() == 0
+
 def test_diff_patch():
     o = new()
     p = new()
@@ -105,14 +117,32 @@ def test_diff_patch():
     d = o.diff(p)
     assert d == [[['l', 0, 0, 2]]]
     o.patch(d)
+    assert o != p
+    o = o.patch(d)
     assert o == p
     o['l.0.0'].append(7777)
     assert o != p
     d = p.diff(o)
     assert d == [[['l', 0, 0, 2], 7777]]
-    p.patch(d)
-    assert p['l.0.0'] == p['l.0.0']
+    p = p.patch(d)
+    assert o['l.0.0'] == p['l.0.0']
     assert o == p
+    p = [1,2,3]
+    o = jdic({'a':1})
+    o = o.patch(o.diff(p))
+    assert isinstance(o, JdicSequence)
+    assert o == p  
+    p = None
+    assert o.patch(o.diff(p)) == None
+
+def test_enumerate():
+    from jdic import enumerate
+    a = [1,2,3]
+    b = {'a' : 1, 'b' : 2}
+    for k, v in enumerate(a):
+        a[k] = v
+    for k, v in enumerate(b):
+        b[k] = v
 
 def test_exception_serialized():
     o = new()
@@ -170,10 +200,10 @@ def test_set_value():
     o['test'] = None
     assert o._obj['test'] == None
 
-def test_order():
+def test_sort():
     paths = [r.path for r in new().browse(sort = True)]
     p = deepcopy(paths)
-    paths.sort()
+    p.sort()
     assert p == paths
 
 def test_attr_proxy():
@@ -206,22 +236,34 @@ def test_leaves():
         'c': [{'d':3}, 4],
         'f': [[{'g':5},6],7]
     })
-    paths = [r.path for r in o.leaves(sort = True)]
-    assert paths == ['a', 'b.c', 'c.0.d', 'c.1', 'f.0.0.g', 'f.0.1', 'f.1']
-    keys = [r.key for r in o.leaves(sort = True)]
-    assert keys == ['a', 'c', 'd', 1, 'g', 1, 1]
+    assert [r.path for r in o.leaves(sort = True)] == ['a', 'b.c', 'c.0.d', 'c.1', 'f.0.0.g', 'f.0.1', 'f.1']
+    assert [r.key for r in o.leaves(sort = True)] == ['a', 'c', 'd', 1, 'g', 1, 1]
     parent_paths = [r.parent_path for r in o.leaves(sort = True)]
     assert parent_paths == ['', 'b', 'c.0', 'c', 'f.0.0', 'f.0', 'f']
     parents = [r.parent for r in o.leaves(sort = True)]
     assert parents[1] == {'c':2}
     assert parents[0] == o
     depths = [r.depth for r in o.leaves(sort = True)]
-    assert depths == [1, 2, 3, 2, 4, 3, 2]
+    assert depths == [0, 1, 2, 1, 3, 2, 1]
     values = [r.value for r in o.leaves(sort = True)]
     assert values == [1, 2, 3, 4, 5, 6, 7]
     
 def test_find():
-    assert len([r for r in new().find({'c':3})]) == 4
+    o = new()
+    assert len([r for r in o.find({'c':3})]) == 4
+    assert len([r for r in o.find({'c':3}, limit = 1)]) == 1
+
+def test_find_keys():
+    o = new()
+    assert [m.path for m in o.find_keys('fab')] == ['f.fa']
+    assert [m.path for m in o.find_keys(['fab', 'fbc'], sort = True)] == ['f.fa', 'f.fb']
+    assert [m.path for m in o.find_keys(['fa', 'fb'], mode = "all")] == ['f']
+    assert [m.path for m in o.find_keys('none')] == []
+
+def test_merge():
+    o = jdic({ 'a' : 1, 'b' : 2})
+    o.merge([1,2])
+    print(o)
 
 def test_match():
     o = jdic({'e':[{'f':'4'}]})
