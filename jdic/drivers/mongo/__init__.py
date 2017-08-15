@@ -11,15 +11,41 @@ class Driver(object):
     _invalid_keys_contains = ['.']
 
     @staticmethod
-    def _key_obj(k, obj):
+    def _control_str_int_key(key):
+        if not isinstance(key, str) and not isinstance(key, int):
+            raise KeyError('Forbidden key type "{}"'.format(type(key)))
+        if isinstance(key, int):
+            return
+        if isinstance(key, str) and not key:
+            raise KeyError('Key cannot be an empty string')
+
+    @classmethod
+    def _control_startswith(cls, key):
+        if not isinstance(key, str):
+            return
+        for char in cls._invalid_keys_startswith:
+            if key.startswith(char):
+                raise KeyError('Character "{}" forbidden in key "{}"'
+                               .format(char, key))
+
+    @classmethod
+    def _control_contains(cls, key):
+        if not isinstance(key, str):
+            return
+        for char in cls._invalid_keys_contains:
+            if key.find(char) != -1:
+                raise KeyError('Character "{}" forbidden in key "{}"'.format(char, key))
+
+    @staticmethod
+    def _key_obj(key, obj):
         """Returns the object and the key, with key type transformed according
         to object type.
         """
-        if k == '' or isinstance(obj, Mapping):
-            return k, obj
+        if key == '' or isinstance(obj, Mapping):
+            return key, obj
         elif isinstance(obj, Sequence):
-            return int(k), obj
-        raise KeyError('Key "{}" was not found in object'.format(k))
+            return int(key), obj
+        raise KeyError('Key "{}" was not found in object'.format(key))
 
     @classmethod
     def add_to_path(cls, path, key):
@@ -30,22 +56,11 @@ class Driver(object):
         return str(key)
 
     @classmethod
-    def control_invalid_key(cls, k):
-        """Raises an exception if a key format is not valid"""
-        if type(k) not in [str, int]:
-            raise KeyError('Forbidden key type "{}"'.format(type(k)))
-        if type(k) is int:
-            return
-        if type(k) is str and not k:
-            raise KeyError('Key cannot be an empty string')
-        for char in cls._invalid_keys_startswith:
-            if k.startswith(char):
-                raise KeyError('Character "{}" forbidden in key "{}"'
-                               .format(char, k))
-        for char in cls._invalid_keys_contains:
-            if k.find(char) != -1:
-                raise KeyError('Character "{}" forbidden in key "{}"'
-                               .format(char, k))
+    def control_invalid_key(cls, key):
+        """ Raises an exception if a key format is not valid """
+        cls._control_str_int_key(key)
+        cls._control_startswith(key)
+        cls._control_contains(key)
 
     @staticmethod
     def get_new_path():
@@ -108,6 +123,6 @@ class Driver(object):
     @staticmethod
     def path_to_keys(path):
         """Transforms an expression-less JSON path into a series of keys"""
-        if type(path) is not str:
+        if not isinstance(path, str):
             return str(path)
         return list(path.split('.'))

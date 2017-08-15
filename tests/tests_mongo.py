@@ -194,6 +194,7 @@ def test_parent_serialized():
     o = new()
     assert o['m.a.0.b'].parent().path() == 'm.a.0' and o['m.a.0.b'].parent() == o['m.a.0']
     assert o['m.a.0.b'].parent(3) == o['m']
+    assert o['m.a.0.b'].parent(10) == None
 
 def test_set_value():
     o = new()

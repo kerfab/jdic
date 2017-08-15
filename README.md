@@ -99,22 +99,22 @@ Here are the useful operations Jdic can do for you:
 
 ## Jdic object instantiation:
 
-
 ### `jdic(obj, schema=None, serializer=None, driver=None):`
 
 Instantiations of Jdic objects is made through the jdic() function which will decide for the type of Jdic object to instantiate and return.
 
 + `obj`: any list or dictionary. Sequence and Mapping equivalents will be casted to `list` and `dict`.
 
-+ `schema`: optional, must be a JSON Schema in the form of a `dict`. If provided, all changes affecting the Jdic will be validated against the schema.
++ `schema`: optional, must be a JSON Schema in the form of a `dict`. If provided, all changes affecting the Jdic will be validated against the schema whenever they happen.
 
-+ `serializer`: optional, your custom serialization function. It will be called to transform non-standard object types into standard JSON types. If not provided, exotic types are transformed to `str`. It is possible to use `settings.serialize_custom_function` instead, to globally specify a serializing function. The custom serializer function, if used, must return a JSON compliant data type: None, bool, str, int, float, list, dict.
++ `serializer`: optional, your custom serialization function. It will be called to transform non-standard object types into standard JSON types. If not provided, exotic types are transformed to `str`. It is possible to use `settings.serialize_custom_function` instead, to globally specify a serializing function for all the Jdic instances. A serializer specified as argument will always have priority over settings. The custom serializer function, if used, must return a JSON compliant data type: None, bool, str, int, float, list, dict. 
 
-+ `driver`: optional, a string representing the driver to use (`mongo` and `jsonpath_ng` are natively implemented). It is possible to use `settings.json_path_driver` instead, to globally specify a driver.
++ `driver`: optional, a string representing the driver to use (`mongo` and `jsonpath_ng` are natively implemented). It is possible to use `settings.json_path_driver` instead, to globally specify a driver. Drivers specified as argument will have priority over settings.
+
+Note about floating point values: objects serialized as Jdic objects will have their floating values transformed into integers whenever the float value is equal to its integer form. This is to make the JSON dumps and checksums consistent and avoids '5' to be shown as '5.0'. This can be changed by setting `settings.serialize_float_to_int` to `False`.
 
 
 ## Jdic objects methods:
-
 
 ### `browse(sort=False, depth=None, maxdepth=None):`
 
@@ -209,7 +209,7 @@ Returns `True` or `False` if the current Jdic object matches the Mongo-like quer
 
 ### `merge(*objs, arr_mode="replace")`:
 
-Will merge the current Jdic with one or multiple other objects (dicts or lists). It is not possible to merge a Jdic of type Mapping (dict) with a Sequence (list) or vice-versa. This limitation does not apply to sub-documents. Note that, unlike `patch()`, the method will change the state of the current object. If multiple args are provided then the next obj in `objs` is merged on the result of the previous merge operation.
+Will merge the current Jdic with one or multiple other objects (dicts or lists). It is not possible to merge a Jdic of type Mapping (dict) with a Sequence (list) or vice-versa. This limitation does not apply to sub-documents. Note that, unlike `patch()`, the method will change the state of the current object. If multiple args are provided then the next obj in `objs` is merged on the result of the previous merge operation, allowing to chain the merges.
 
 + `objs`: one or multiple objects of a similar type as the Jdic object itself.
 + `arr_mode`: determines how are handled the merging of conflicting arrays (arrays who are on the same JSON path). 4 modes are supported:
@@ -263,6 +263,7 @@ jsonpath_ng: https://github.com/h2non/jsonpath-ng
 ## TODO:
 
 + MatchResult documentation
++ settings documentation
 + Pip package
 + Readthedocs documentation
 + Documentation on drivers implementation

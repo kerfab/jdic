@@ -1,9 +1,12 @@
-import jdic.drivers.mongo
-from jsonpath_ng import jsonpath, parse
+""" The driver on top of jsonpath_ng """
+
 from collections import Mapping, Sequence
+from jsonpath_ng import jsonpath, parse
 from mongoquery import Query
+import jdic.drivers.mongo
 
 class Driver(jdic.drivers.mongo.Driver):
+    """ The driver class for Jdic objects """
     _root_strings = ['$']
     _invalid_keys_startswith = ['$']
     _invalid_keys_contains = ['`', ']', '[', '$', '*', '.']
@@ -18,25 +21,17 @@ class Driver(jdic.drivers.mongo.Driver):
         return path
 
     @classmethod
-    def control_invalid_key(cls, k):
-        if type(k) not in [str, int]:
-            raise KeyError('Forbidden key type "{}"'.format(type(k)))
-        if type(k) is int:
-            return
-        if type(k) is str and not k:
-            raise KeyError('Key cannot be an empty string')
-        for char in cls._invalid_keys_startswith:
-            if k.startswith(char):
-                raise KeyError('Character "{}" forbidden in key "{}"'.format(char, k))
+    def control_invalid_key(cls, key):
+        # pylint: disable=duplicate-code
+        cls._control_str_int_key(key)
+        cls._control_startswith(key)
         try:
-            char = k[0]
+            char = key[0]
             if char.isdigit():
-                raise KeyError('Keys cannot start with a number'.format(char, k))
-        except:
+                raise KeyError('Keys cannot start with a number, "{}"'.format(key))
+        except TypeError:
             pass
-        for char in cls._invalid_keys_contains:
-            if k.find(char) != -1:
-                raise KeyError('Character "{}" forbidden in key "{}"'.format(char, k))
+        cls._control_contains(key)
 
     @staticmethod
     def get_new_path():
@@ -68,30 +63,30 @@ class Driver(jdic.drivers.mongo.Driver):
     @classmethod
     def is_a_path(cls, key):
         if isinstance(key, str):
-            for c in cls._invalid_keys_contains:
-                if key.find(c) != -1:
+            for char in cls._invalid_keys_contains:
+                if key.find(char) != -1:
                     return True
         return False
 
     @staticmethod
     def keys_to_path(keys):
-        p = '$'
-        for k in keys:
-            if type(k) is int:
-                p += '.[{}]'.format(k)
+        path = '$'
+        for key in keys:
+            if isinstance(key, int):
+                path += '.[{}]'.format(key)
             else:
-                p += '.{}'.format(k)
-        return p
+                path += '.{}'.format(key)
+        return path
 
     @staticmethod
     def path_to_keys(path):
-        if type(path) is not str:
-            return [ str(path) ]
+        if not isinstance(path, str):
+            return [str(path)]
         keys = list(path.split('.'))
-        for i, k in enumerate(keys):
-            if k.startswith('['):
-                k = int(k[1:-1])
-            keys[i] = k
+        for ind, key in enumerate(keys):
+            if key.startswith('['):
+                key = int(key[1:-1])
+            keys[ind] = key
         if keys[0] == '$':
-            del(keys[0])
+            del keys[0]
         return keys
