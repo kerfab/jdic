@@ -14,16 +14,27 @@ It performs its own work, but also embeds mission-critical 3rd party libraries a
 Here are the useful operations Jdic can do for you:
 
 + Transparent JSON paths integration - for read and write operations, through an agnostic driver model. Currently MongoDB and Jsonpath-NG paths formats are natively supported.
+
 + Fast browsing of JSON documents - browse the entire data structure while getting useful values on each iteration: value, JSON path, parent, parent JSON path, depth, etc.
+
 + Find, Find-Keys and Find-Match features for quickly finding any key or value, or subdocument matching MongoDB-like queries.
+
 + Merge features for fusioning objects recursively, with up to 4 modes for handling conflicting arrays (replace, merge, new, append).
+
 + Diff & Patch features - so you can represent differences between two documents in small data sets (diff), and apply those differences to update documents (patch).
+
 + JSON Schema validation - if you need it, with auto-validation on each document change.
+
 + Consistent document checksuming - natively SHA-256, it allows to get a single checksum for the document, the checksum will always be the same on all systems.
+
 + Depth features - you can crawl your document at certain depths only.
+
 + Strict features - input data will be serialized to a strict JSON format.
+
 + Agnostic dicts/lists replacement for Python's `enumerate()`
+
 + Custom input serializer support - convert specific objects to the JSON data you want to.
+
 + Cache features with change detection to accelerate some of the API calls.
 
 
@@ -36,25 +47,35 @@ Here are the useful operations Jdic can do for you:
     o = {"a" : {"b" : {"c" : 1}}}
     j = jdic(o) # Accepts dicts and lists or Mapping, Sequence
 
-### Finding the paths for a value
+### Find the paths for a value
 
     paths = [m.path for m in j.find({"a": {"b": {"c": 1}}})] # Find path for a value as-is
     >>> ["a.b.c"]
 
-### Crawl all the leaves of the Jdic
+### Crawl all the leaves
 
     paths = [m.parent_path for m in j.leaves()]  # Results include parents paths and more
-    >>> ["a.b"] 
+    >>> ["a.b"]
 
-### Getting the depth of values
+### Or simply crawl everything
+
+    allitems = [m.value for m in j.browse()]  # The first item is always the root itself
+    >>> [
+            {"a": {"b": {"c": 1}}},
+            {"b": {"c": 1}},
+	    {"c": 1},
+	    1
+	]
+
+### Get the depth of values
 
     paths = [m.depth for m in j.find({"c" : 1})] # find() target values can be objects
     >>> [2]
 
-### Matching an object against a MongoDB-like query
+### Match an object against a MongoDB-like query (useful for rules/filtering engines)
 
     paths = [m.path for m in j.find_match({"c": {"$gt": 0}}) ] # match() and find_match() support mongo-like queries
-    >>> ["a.b"]  
+    >>> ["a.b"]
 
     paths = [m.path for m in j.find_match({  # Complex Mongo-like queries are permitted
         "$and" : [
@@ -64,7 +85,7 @@ Here are the useful operations Jdic can do for you:
     })]
     >>> ["a"]
 
-### Checksuming objects and sub-objects
+### Checksum objects and sub-objects consistently
 
     j.checksum()
     >>> ebd240a9ae435649514086d13c20d9963ec2844a1f866b313919c55a7c3f7ccb # Is consistent on all systems
@@ -76,7 +97,7 @@ Here are the useful operations Jdic can do for you:
     j.checksum()
     >>> 69d7d33051c5e05aa72f55a9a8e30a73da8d4afaa37127b9ea7ee29403aa9d3f # Change detection from child to parent
 
-### Making diffs and patches between objects
+### Make diffs and patches between objects
 
     j = jdic(o)
     p = {"a" : {"e" : {"f" : -1 }}}
@@ -87,29 +108,29 @@ Here are the useful operations Jdic can do for you:
     j == p # Jdic objects can be transparently compared with dict or list objects 
     >>> True 
 
-### Merging objects together
+### Merge objects together
 
     q = {"a" : {"b" : {"d" : 2}}}
     j.merge(q)
     >>> {"a": {"b": {"c": 1, "d": 2}}} # Handles recursive merge
 
-### Automatic on-change schema validation 
+### Validate against a schema in real-time with the built-in change detection
 
     j = jdic(o, schema = {'type' : 'object' , 'properties' : {'a' : {'type' : 'object'}}}) # Correct Schema
     j['a'] = 3 # instant detection of schema violation (exception)
     >>> Traceback (most recent call last): ...
 
-### enumerate() replacement - consistent with both dicts and lists
+### Change the native enumerate()'s behavior for smoother iterations
 
     # Agnostic enumerations with a revised enumerate() function
     from jdic import enumerate 
     y, z = [1,2,3], {'a':1, 'b':2}
     for k, v in enumerate(y): # Acts just as the original enumerate() for lists
         y[k] = v
-    for k, v in enumerate(z): # But it allows agnostic dict enumeration in the same way!
+    for k, v in enumerate(z): # But it allows agnostic dict enumeration in the same way
         z[k] = v
 
-### Using another JSON path driver
+### Change the JSON path driver (or build your own!)
 
     j = jdic({'a' : [{'b': 1}, {'b': 2}, {'b': 3}]}, driver = 'jsonpath_ng')
     j['a[*].b'] = 0 # Reassign the value to all locations at once!
