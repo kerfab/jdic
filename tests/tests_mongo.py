@@ -41,7 +41,7 @@ expected_match_attributes = [
 
 def log(*args):
     print("\n-----------------------------------")
-    print(*args)
+    print(args)
     print("------------------------------------\n\n")
 
 def test_browse_match_attributes():

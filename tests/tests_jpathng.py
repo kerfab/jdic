@@ -25,7 +25,7 @@ def new(asdict = False, schema = None, serializer = None, driver = None):
 
 def log(*args):
     print("\n-----------------------------------")
-    print(*args)
+    print(args)
     print("------------------------------------\n\n")
 
 def test_get_value_at_path():
