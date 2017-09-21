@@ -57,14 +57,14 @@ Here are the useful operations Jdic can do for you:
     paths = [m.parent_path for m in j.leaves()]  # Results include parents paths and more
     >>> ["a.b"]
 
-### Or simply crawl everything
+### Crawl everything
 
     allitems = [m.value for m in j.browse()]  # The first item is always the root itself
     >>> [
             {"a": {"b": {"c": 1}}},
             {"b": {"c": 1}},
-	    {"c": 1},
-	    1
+            {"c": 1},
+            1
 	]
 
 ### Get the depth of values
@@ -127,10 +127,10 @@ Here are the useful operations Jdic can do for you:
     y, z = [1,2,3], {'a':1, 'b':2}
     for k, v in enumerate(y): # Acts just as the original enumerate() for lists
         y[k] = v
-    for k, v in enumerate(z): # But it allows agnostic dict enumeration in the same way
+    for k, v in enumerate(z): # But allows dict enumeration, raising a key instead of a counter
         z[k] = v
 
-### Change the JSON path driver (or build your own!)
+### Change the JSON path driver
 
     j = jdic({'a' : [{'b': 1}, {'b': 2}, {'b': 3}]}, driver = 'jsonpath_ng')
     j['a[*].b'] = 0 # Reassign the value to all locations at once!
@@ -323,14 +323,11 @@ This will apply to all classes.
 
 ### JSON dump formatting of Jdic objects
 
-When using str() on a Jdic object the default behavior is to return a nicely formatted json dump,
-whose keys are sorted and indentation set to 4.
+When using `str()` on a Jdic object the default behavior is to return a nicely formatted JSON dump, whose keys are sorted and indentation set to 4, to ease the debugging processes in `print()` operations.
 
-This is not the proper way to dump a Jdic object in Json (prefer `json()`), and `str()` should be \
-used when using `print()` or similar for debugging purposes.
+If you wish to send or store this dump, casting it to string with `str()` is not the proper way to do, prefer the `json()` method instead.
 
-If you want to change the behavior of the JSON dump through str(), you can change the settings with
-`json_dump_sort_keys` and `json_dump_indent`:
+If you want to change the behavior of the JSON dump through str(), you can change the settings with `json_dump_sort_keys` and `json_dump_indent`:
 
     from jdic import settings
     settings.json_dump_sort_keys = True # Disables key sorting
@@ -340,9 +337,7 @@ This will apply to all classes.
 
 ### Changing the default driver
 
-By default the JSON path driver is `mongo`. Changing the `json_path_driver` to another value
-in the settings (eg: `jsonpath_ng`) will change the default driver used for any future class
-instantiation, unless otherwise specified in constructors:
+By default the JSON path driver is `mongo`. Changing the `json_path_driver` to another value in the settings (eg: `jsonpath_ng`) will change the default driver used for any future class instantiation, unless otherwise specified in constructors:
 
     from jdic import settings
     settings.json_path_driver = "jsonpath_ng"
