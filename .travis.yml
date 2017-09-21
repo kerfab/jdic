@@ -10,5 +10,9 @@ python:
 install: 
   - pip install .
   - pip install nose2
+  - pip install mongoquery
+  - pip install json_schema
+  - pip install jsonpath-ng
+  - pip install json-delta
 # command to run tests
 script: nose2
