@@ -37,7 +37,7 @@ setup(
     install_requires=[
         "json-delta",
         "jsonpath-ng",
-        "json_schema",
+        "jsonschema",
         "mongoquery"
     ],    
     zip_safe=False
