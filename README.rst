@@ -4,18 +4,20 @@ Jdic Documentation
 1. Overview
 -----------
 
-In most projects, manipulating JSON documents requires to reinvent the
-wheel on a lot of small features, or to use a varied set of external
-packages. Jdic's admitted goal is to write less code with the guarantee
-to get the job done fast, flawlessly and efficiently.
+Jdic aims to be a professional, ready-to-use and easy-to-learn package
+delivering the all-around tools you need to manipulate large JSON-like
+Python objects.
 
-Jdic aims to avoid that: it is a ready-to-use type-class which eases the
-manipulation of JSON-like documents, so that you can focus on logic
-instead of losing time in formal document manipulations.
+In most projects, advanced JSON documents manipulations require to reinvent
+a lot of small features and to use a set of independant external packages.
 
-The Jdic class provides a lot of original features but also embeds
-mission-critical 3rd party libraries and unite them all within a
-comprehensive easy-to-use API.
+Jdic is the type-class you need to ease the manipulation of JSON-like
+documents, with the admitted goal to ensure that less code is written all
+while getting the job done fast, flawlessly and efficiently.
+
+The Jdic class provides a lot of interesting features and embeds
+mission-critical 3rd party libraries all united within a comprehensive
+straightforward API.
 
 2. Features
 -----------
@@ -667,6 +669,5 @@ jsonpath\_ng: https://github.com/h2non/jsonpath-ng
 10. TODO:
 ---------
 
--  Pip package
 -  Readthedocs documentation
 -  More tests (current state: 108 assertions)

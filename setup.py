@@ -21,7 +21,8 @@ setup(
         "Topic :: Utilities"
     ],
     author='Fabien Kerbouci',
-    description="A ready-to-use library which eases the manipulation "
+    description="Advanced JSON objects manipulation made easy. "
+                "Jdic is a ready-to-use library which eases the manipulation "
                 "of JSON-like documents, so that you can focus on "
                 "logic instead of losing time in formal document manipulations."
                 "Jdic offers original features, but also embeds mission-critical " 
