@@ -96,6 +96,21 @@ Here are the useful operations Jdic can do for you:
     del('a[*].b') # Also works with del()
     >>> {"a": [{}, {}, {}]}
 
+## The MatchResult object
+
+The MatchResult object is returned for most search operations. It contains:
+
++ `value`: the found object
+
++ `path`: the full JSON path of the found object
+
++ `parent`: the Jdic object containing the current found object
+
++ `parent_path`: the full JSON path of the parent of the found object
+
++ `key`: the current key (or index) at which the object was found within its parent
+
++ `depth`: the depth of the object counting from the root of the Jdic
 
 ## Jdic object instantiation:
 
