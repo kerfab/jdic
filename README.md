@@ -29,19 +29,29 @@ Here are the useful operations Jdic can do for you:
 
 ## Examples:
 
+### Instantiation
+
     from jdic import jdic
 
     o = {"a" : {"b" : {"c" : 1}}}
     j = jdic(o) # Accepts dicts and lists or Mapping, Sequence
 
-    paths = [m.path for m in j.find(1)] # Find path for a value as-is
+### Finding the paths for a value
+
+    paths = [m.path for m in j.find({"a": {"b": {"c": 1}}})] # Find path for a value as-is
     >>> ["a.b.c"]
+
+### Crawl all the leaves of the Jdic
 
     paths = [m.parent_path for m in j.leaves()]  # Results include parents paths and more
     >>> ["a.b"] 
 
+### Getting the depth of values
+
     paths = [m.depth for m in j.find({"c" : 1})] # find() target values can be objects
-    >>> [2] 
+    >>> [2]
+
+### Matching an object against a MongoDB-like query
 
     paths = [m.path for m in j.find_match({"c": {"$gt": 0}}) ] # match() and find_match() support mongo-like queries
     >>> ["a.b"]  
@@ -54,6 +64,8 @@ Here are the useful operations Jdic can do for you:
     })]
     >>> ["a"]
 
+### Checksuming objects and sub-objects
+
     j.checksum()
     >>> ebd240a9ae435649514086d13c20d9963ec2844a1f866b313919c55a7c3f7ccb # Is consistent on all systems
 
@@ -64,6 +76,8 @@ Here are the useful operations Jdic can do for you:
     j.checksum()
     >>> 69d7d33051c5e05aa72f55a9a8e30a73da8d4afaa37127b9ea7ee29403aa9d3f # Change detection from child to parent
 
+### Making diffs and patches between objects
+
     j = jdic(o)
     p = {"a" : {"e" : {"f" : -1 }}}
     diff = j.diff(p)
@@ -73,13 +87,19 @@ Here are the useful operations Jdic can do for you:
     j == p # Jdic objects can be transparently compared with dict or list objects 
     >>> True 
 
+### Merging objects together
+
     q = {"a" : {"b" : {"d" : 2}}}
     j.merge(q)
     >>> {"a": {"b": {"c": 1, "d": 2}}} # Handles recursive merge
 
+### Automatic on-change schema validation 
+
     j = jdic(o, schema = {'type' : 'object' , 'properties' : {'a' : {'type' : 'object'}}}) # Correct Schema
     j['a'] = 3 # instant detection of schema violation (exception)
     >>> Traceback (most recent call last): ...
+
+### enumerate() replacement - consistent with both dicts and lists
 
     # Agnostic enumerations with a revised enumerate() function
     from jdic import enumerate 
@@ -89,12 +109,15 @@ Here are the useful operations Jdic can do for you:
     for k, v in enumerate(z): # But it allows agnostic dict enumeration in the same way!
         z[k] = v
 
+### Using another JSON path driver
+
     j = jdic({'a' : [{'b': 1}, {'b': 2}, {'b': 3}]}, driver = 'jsonpath_ng')
     j['a[*].b'] = 0 # Reassign the value to all locations at once!
     >>> {"a": [{"b": 0}, {"b": 0}, {"b": 0}]}
 
     del('a[*].b') # Also works with del()
     >>> {"a": [{}, {}, {}]}
+
 
 ## The MatchResult object
 
@@ -264,6 +287,46 @@ Validates the current Jdic with any JSON schema provided. If no argument is pass
 + `schema`: a JSON schema.
 
 
+## Settings
+
+### Advanced serialization settings
+
+By default Jdic will try to transform floats in input into integers if the integer value is equal the float value. The goal is to avoid erratic behaviors in common serializations operations that can lead to detecting differences between objects who are both strictly semantically identical.
+
+To avoid the float to int normalization it is possible to set `serialize_float_to_int` to False:
+
+    from jdic import settings
+    settings.serialize_float_to_int = False
+
+This will apply to all classes.
+
+### JSON dump formatting of Jdic objects
+
+When using str() on a Jdic object the default behavior is to return a nicely formatted json dump,
+whose keys are sorted and indentation set to 4.
+
+This is not the proper way to dump a Jdic object in Json (prefer `json()`), and `str()` should be \
+used when using `print()` or similar for debugging purposes.
+
+If you want to change the behavior of the JSON dump through str(), you can change the settings with
+`json_dump_sort_keys` and `json_dump_indent`:
+
+    from jdic import settings
+    settings.json_dump_sort_keys = True # Disables key sorting
+    settings.json_dump_indent = 0 # Disables indentation
+
+This will apply to all classes.
+
+### Changing the default driver
+
+By default the JSON path driver is `mongo`. Changing the `json_path_driver` to another value
+in the settings (eg: `jsonpath_ng`) will change the default driver used for any future class
+instantiation, unless otherwise specified in constructors:
+
+    from jdic import settings
+    settings.json_path_driver = "jsonpath_ng"
+
+
 ## Related projects/libraries:
 
 json_delta: http://json-delta.readthedocs.io/en/latest/
@@ -277,7 +340,6 @@ jsonpath_ng: https://github.com/h2non/jsonpath-ng
 
 ## TODO:
 
-+ MatchResult documentation
 + settings documentation
 + Pip package
 + Readthedocs documentation

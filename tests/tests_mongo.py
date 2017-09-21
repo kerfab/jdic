@@ -299,10 +299,12 @@ def test_match():
     assert o.match({'e':'4'}) == False
     assert o.match({'f':'5'}) == False
     assert o.match({'0.e':4}) == True
-    o = jdic({'e':[0, {'f':1}]})
-    assert o.match({'e.0':{'$in':[0]}}) == True
-    assert o.match({'e.1':{'$in':[{'f':1}]}}) == True
-    assert o.match({'e.2':{'$in':[{'f':1}]}}) == False
+    o = jdic({'e':[0, 1, {'f':1}]})
+    assert o.match({'e':{'$in':[0]}}) == True
+    assert o.match({'e':{'$in':[0, 555]}}) == True
+    assert o.match({'e':{'$in':[555, 556]}}) == False
+    assert o.match({'e.2':{'$in':[{'f':1}]}}) == True
+    assert o.match({'e.1':{'$in':[{'f':1}]}}) == False
     assert o.match({'e.1':{'$nin':[{'f':2}]}}) == True
     assert o.match({'e.2':{'$nin':[{'f':2}]}}) == True
     assert o.match({'e.2':{'$ne':None}}) == True
