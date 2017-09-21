@@ -28,7 +28,7 @@ JSON_LEAVES = [
 class MatchResult(object):
     """ Wraps the results of searches and browses within Jdic objects """
     # pylint: disable=too-few-public-methods
-
+    
     def __init__(self, **kwargs):
         self._obj = {}
         for k in kwargs:
@@ -39,7 +39,8 @@ class MatchResult(object):
         return str(self._obj)
 
     def __iter__(self):
-        yield from self._obj.__iter__()
+        for entry in self._obj.__iter__():
+            yield entry
 
     def __getitem__(self, item):
         return self._obj[item]
@@ -156,7 +157,8 @@ class Jdic(object):
         return self._obj[int(item)]
 
     def __iter__(self):
-        yield from self._obj.__iter__()
+        for entry in self._obj.__iter__():
+            yield entry
 
     def __len__(self):
         return len(self._obj)
@@ -372,7 +374,8 @@ class Jdic(object):
                 yield MatchResult(parent=self, parent_path=self._path, key=key,
                                   value=val, path=path, depth=self._depth)
             if isinstance(val, Jdic):
-                yield from val.browse(sort=sort, depth=depth, maxdepth=maxdepth, _start=False)
+                for entry in val.browse(sort=sort, depth=depth, maxdepth=maxdepth, _start=False):
+                    yield entry
 
     def checksum(self, algo='sha256'):
         """ Returns an ASCII hexadecimal checksum representing the state of the object """
@@ -417,7 +420,8 @@ class Jdic(object):
 
     def enumerate(self, sort=False):
         """ Yields a key, value pair with both Jdic Mappings and Sequences """
-        yield from jdic_enumerate(self._obj, sort=sort)
+        for entry in jdic_enumerate(self._obj, sort=sort):
+            yield entry
 
     def find(self, value, limit=None, sort=False, depth=None, maxdepth=None):
         """ Finds a value within the Jdic object, the search is recursive """
