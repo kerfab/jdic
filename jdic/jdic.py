@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*- 
 """
 The Jdic module provides the features required to manipulate
 JSON objects through a consistent API.
