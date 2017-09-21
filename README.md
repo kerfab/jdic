@@ -109,8 +109,8 @@ Here are the useful operations Jdic can do for you:
     >>> [[["a"], {"e": {"f": -1}}]] # A diff stanza - on larger documents the diffs are smaller than documents
 
     j = j.patch(diff) # Patch does not modify the original object but returns a patched version
-    j == p # Jdic objects can be transparently compared with dict or list objects 
-    >>> True 
+    j == p # Jdic objects can be transparently compared with dict or list objects (or equivalents)
+    >>> True
 
 ### Merge objects together
 
@@ -172,17 +172,17 @@ The MatchResult object is returned for most search operations. It contains:
 
 ### `jdic(obj, schema=None, serializer=None, driver=None):`
 
-Instantiations of Jdic objects is made through the `jdic()` function which will decide for the type of Jdic object (Mapping or Sequence) to instantiate and return.
+Instantiations of Jdic objects is made through the `jdic()` function which will decide for the type of Jdic object (`JdicMapping` or `JdicSequence`) to instantiate and return. Both those types inherit from the Jdic class (do not use this one directly, mind the lowercase).
 
 + `obj`: any list or dictionary. Sequence and Mapping equivalents will be casted to `list` and `dict`.
 
 + `schema`: optional, must be a JSON Schema in the form of a `dict`. If provided, all changes affecting the Jdic will be validated against the schema whenever they happen.
 
-+ `serializer`: optional, your custom serialization function. It will be called to transform non-standard object types into standard JSON types. If not provided, exotic types are transformed to `str`. It is possible to use `settings.serialize_custom_function` instead, to globally specify a serializing function for all the Jdic instances. A serializer specified as argument will always have priority over settings. The custom serializer function, if used, must return a JSON compliant data type: None, bool, str, int, float, list, dict. 
++ `serializer`: optional, your custom serialization function. Useless when `obj` is the result of a `json.loads()`. It will be called to transform non-standard object types into standard JSON types. If not provided, exotic types are transformed to `str`. It is possible to use `settings.serialize_custom_function` instead, to globally specify a serializing function for all the Jdic instances. A serializer specified as argument will always have priority over settings. The custom serializer function, if used, must return a JSON compliant data type: None, bool, str, int, float, list, dict. 
 
 + `driver`: optional, a string representing the driver to use (`mongo` and `jsonpath_ng` are natively implemented). It is possible to use `settings.json_path_driver` instead, to globally specify a driver. Drivers specified as argument will have priority over settings.
 
-Note about floating point values: objects serialized as Jdic objects will have their floating values transformed into integers whenever the float value is equal to its integer form. This is to make the JSON dumps and checksums consistent and avoids '5' to be shown as '5.0'. This can be changed by setting `settings.serialize_float_to_int` to `False`.
+Note about floating point values: objects serialized as Jdic objects will have their floating values transformed to integers whenever the float value is equal to its integer form. This is to make the JSON dumps and checksums consistent and avoids '5' to be shown as '5.0'. This can be changed by setting `settings.serialize_float_to_int` to `False`.
 
 
 ## Jdic objects methods:
@@ -337,7 +337,7 @@ This will apply to all classes.
 
 ### JSON dump formatting of Jdic objects
 
-When using `str()` on a Jdic object the default behavior is to return a nicely formatted JSON dump, whose keys are sorted and indentation set to 4, to ease the debugging processes in `print()` operations.
+When using `str()` on a Jdic object the default behavior is to return a nicely formatted JSON dump, whose keys are sorted and indentation set to 4, to ease the debugging processes and `print()` operations.
 
 If you wish to send or store this dump, casting it to string with `str()` is not the proper way to do, prefer the `json()` method instead.
 
@@ -414,7 +414,7 @@ The `__init__.py` file must contain a `Driver` class whose template is:
         def path_to_keys(path):
             """Transforms an expression-less JSON path into a series of keys"""
 
-Note that if you wish to benefit from already implemented functions, you can inherit from any existing driver. For example, the current class implementation of the `jsonpath-ng` driver inherits from the Mongo driver allowing to reimplement only the relevant features (for example the `match()` function is still implemented to match against Mongo Query Language queries).
+Note that if you wish to benefit from already implemented functions, you can inherit from any existing driver. For example, the current class implementation of the `jsonpath-ng` driver inherits from the Mongo driver allowing to reimplement only the relevant features, explaining why the `match()` function is still implemented to match against Mongo Query Language queries supported by the `mongo` driver.
 
     class Driver(jdic.drivers.mongo.Driver):
 	    ...
