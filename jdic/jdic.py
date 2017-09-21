@@ -47,7 +47,10 @@ class MatchResult(object):
 
 
 class Jdic(object):
-    """ The Jdic class provides the useful operations to crawl or manipulate JSON data objects """
+    """ 
+    The Jdic class provides the useful operations to crawl or manipulate JSON data objects 
+    Do not instantiate this class directly, use the instantation wrapper function `jdic()` instead
+    """
     # pylint: disable=too-many-instance-attributes
 
     _attr_whitelist = [
@@ -134,7 +137,7 @@ class Jdic(object):
         if isinstance(obj, Jdic):
             return self.checksum() == obj.checksum()
         elif self._is_iterable(obj):
-            return self.checksum() == jdic_create(obj).checksum()
+            return self.checksum() == jdic(obj).checksum()
         return False
 
     def __getattr__(self, attr):
@@ -170,7 +173,7 @@ class Jdic(object):
             parents = [(self, path)]
         for parent, key in parents:
             if self._is_iterable(value):
-                value = jdic_create(value, _parent=parent, _key=key)
+                value = jdic(value, _parent=parent, _key=key)
             parent._obj[key] = value
             parent._flag_modified()
 
@@ -323,7 +326,7 @@ class Jdic(object):
                 key = str(key)
             val = self._input_serialize(val)
             if self._is_iterable(val):
-                val = jdic_create(val, _parent=parent, _key=key)
+                val = jdic(val, _parent=parent, _key=key)
             if isinstance(res, dict):
                 res[key] = val
             else:
@@ -347,7 +350,7 @@ class Jdic(object):
 
     def browse(self, sort=False, depth=None, maxdepth=None, _start=True):
         """
-        Iterates on each JSON entry in a recusrive fashion
+        Iterates on each JSON entry in a recursive fashion
 
         Arguments:
           - sort: bool. If True keys in dicts are alphabetically sorted before values are yielded.
@@ -500,8 +503,8 @@ class Jdic(object):
         """ Returns a copy of the current object """
         if _obj is None:
             _obj = self._obj
-        return jdic_create(_obj, serializer=self._serializer,
-                           driver=self._driver_name, schema=self._schema)
+        return jdic(_obj, serializer=self._serializer,
+                    driver=self._driver_name, schema=self._schema)
 
     def parent(self, generation=1):
         """ Returns the Jdic object parent of this object """
@@ -559,7 +562,8 @@ class JdicSequence(Jdic, Sequence):
 class JdicMapping(Jdic, Mapping):
     """ A wrapper for Jdics with Mapping root types (usually dict) """
 
-def jdic_create(iterable, **kwargs):
+
+def jdic(iterable, **kwargs):
     """ This function returns a Jdic correctly typped according to the data root type """
     if isinstance(iterable, Mapping):
         return JdicMapping(iterable, **kwargs)

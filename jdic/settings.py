@@ -9,5 +9,5 @@ serialize_float_to_int = True
 serialize_custom_function = None
 
 # __str()__ json dump behavior
-json_dump_sort_keys = False
+json_dump_sort_keys = True
 json_dump_indent = 4

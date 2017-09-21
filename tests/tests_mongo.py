@@ -1,4 +1,4 @@
-from jdic import settings, jdic, Jdic, JdicSequence
+from jdic import settings, jdic, JdicSequence
 from copy import copy, deepcopy
 
 settings.json_path_driver = "mongo"

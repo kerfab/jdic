@@ -42,15 +42,19 @@ Here are the useful operations Jdic can do for you:
 
 ### Instantiation
 
-    from jdic import jdic
+    from jdic import jdic	
 
     o = {"a" : {"b" : {"c" : 1}}}
-    j = jdic(o) # Accepts dicts and lists or Mapping, Sequence
+    j = jdic(o) # Accepts dicts and lists (or any Mapping, Sequence)
 
 ### Find the paths for a value
 
-    paths = [m.path for m in j.find({"a": {"b": {"c": 1}}})] # Find path for a value as-is
+    paths = [m.path for m in j.find(1)] # Find path for a value as-is
     >>> ["a.b.c"]
+
+    for match in j.find(1): # Classic loop format
+        print(match.path)
+    >>> a.b.c
 
 ### Crawl all the leaves
 
@@ -120,6 +124,14 @@ Here are the useful operations Jdic can do for you:
     j['a'] = 3 # instant detection of schema violation (exception)
     >>> Traceback (most recent call last): ...
 
+### Test the Jdic object type:
+
+    from jdic import Jdic # `Jdic` is the parent class, do not confuse with the function `jdic()`
+	>>> type(j)
+	<class 'jdic.JdicMapping'>
+	>>> isinstance(j, Jdic)
+	True
+
 ### Change the native enumerate()'s behavior for smoother iterations
 
     # Agnostic enumerations with a revised enumerate() function
@@ -160,7 +172,7 @@ The MatchResult object is returned for most search operations. It contains:
 
 ### `jdic(obj, schema=None, serializer=None, driver=None):`
 
-Instantiations of Jdic objects is made through the jdic() function which will decide for the type of Jdic object to instantiate and return.
+Instantiations of Jdic objects is made through the `jdic()` function which will decide for the type of Jdic object (Mapping or Sequence) to instantiate and return.
 
 + `obj`: any list or dictionary. Sequence and Mapping equivalents will be casted to `list` and `dict`.
 
@@ -312,9 +324,11 @@ Validates the current Jdic with any JSON schema provided. If no argument is pass
 
 ### Advanced serialization settings
 
-By default Jdic will try to transform floats in input into integers if the integer value is equal the float value. The goal is to avoid erratic behaviors in common serializations operations that can lead to detecting differences between objects who are both strictly semantically identical.
+By default Jdic will try to transform input floats into integers, if the integer value is equal the float value (eg: float `5.0` is changed to int `5`).
 
-To avoid the float to int normalization it is possible to set `serialize_float_to_int` to False:
+The goal is trying to avoid unpredicted behaviors in serializations operations, so we reduce the risk of detecting differences between two objects who are both semantically and mathematically identical.
+
+If you want to globally prevent the float to int normalization it is possible to set `serialize_float_to_int` to False:
 
     from jdic import settings
     settings.serialize_float_to_int = False
@@ -327,21 +341,83 @@ When using `str()` on a Jdic object the default behavior is to return a nicely f
 
 If you wish to send or store this dump, casting it to string with `str()` is not the proper way to do, prefer the `json()` method instead.
 
-If you want to change the behavior of the JSON dump through str(), you can change the settings with `json_dump_sort_keys` and `json_dump_indent`:
+If you want to change the behavior of the JSON dump through `str()`, you can change the settings with `json_dump_sort_keys` and `json_dump_indent`:
 
     from jdic import settings
-    settings.json_dump_sort_keys = True # Disables key sorting
+    settings.json_dump_sort_keys = False # Disables key sorting
     settings.json_dump_indent = 0 # Disables indentation
 
 This will apply to all classes.
 
 ### Changing the default driver
 
-By default the JSON path driver is `mongo`. Changing the `json_path_driver` to another value in the settings (eg: `jsonpath_ng`) will change the default driver used for any future class instantiation, unless otherwise specified in constructors:
+By default the JSON path driver is `mongo`. Changing the `json_path_driver` to another value in the settings (eg: `jsonpath_ng`) will change the default driver used for any future class instantiation, unless otherwise specified in `jdic()` parameters:
 
     from jdic import settings
     settings.json_path_driver = "jsonpath_ng"
 
+
+## Implementing your own JSON path driver
+
+### Create your driver as a module
+
++ Create a new folder within your project (eg: `new_driver`)
+
++ Create a `__init__.py` file within the folder
+
+### Implementing drivers
+
+First, you should review an already implemented driver. The `mongo` driver is the best example you can use so far. It is available within the jdic module in `drivers/mongo/__init__.py`.
+
+The `__init__.py` file must contain a `Driver` class whose template is:
+
+    class Driver(object):
+        """The driver class"""
+
+        @classmethod
+        def add_to_path(cls, path, key):
+            """Adds a key at the end of a JSON path and returns the new path"""
+
+        @classmethod
+        def control_invalid_key(cls, key):
+            """ Raises an exception if a key format (not JSON path) is not valid """
+
+        @staticmethod
+        def get_new_path():
+            """Returns a static JSON path pointing to the root of document"""
+
+        @classmethod
+        def get_parent(cls, obj, path):
+            """Returns the parent of the value pointed by JSON path"""
+
+        @classmethod
+        def get_value_at_path(cls, obj, path):
+            """Returns the value pointed by JSON path"""
+
+        @staticmethod
+        def is_a_path(key):
+            """True if is a JSON path, else False"""
+
+        @classmethod
+        def is_root_path(cls, path):
+            """True if is a JSON path for root document, else False"""
+
+        @staticmethod
+        def keys_to_path(keys):
+            """Transforms a list of keys into a proper JSON path"""
+
+        @staticmethod
+        def match(obj, query):
+            """Returns True if object matches the query, else False"""
+
+        @staticmethod
+        def path_to_keys(path):
+            """Transforms an expression-less JSON path into a series of keys"""
+
+Note that if you wish to benefit from already implemented functions, you can inherit from any existing driver. For example, the current class implementation of the `jsonpath-ng` driver inherits from the Mongo driver allowing to reimplement only the relevant features (for example the `match()` function is still implemented to match against Mongo Query Language queries).
+
+    class Driver(jdic.drivers.mongo.Driver):
+	    ...
 
 ## Related projects/libraries:
 
@@ -356,8 +432,6 @@ jsonpath_ng: https://github.com/h2non/jsonpath-ng
 
 ## TODO:
 
-+ settings documentation
 + Pip package
 + Readthedocs documentation
-+ Documentation on drivers implementation
-+ More tests
++ More tests (current state: 108 assertions)

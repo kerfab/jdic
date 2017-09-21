@@ -1,4 +1,4 @@
-from jdic import settings, jdic, Jdic
+from jdic import settings, jdic
 from copy import copy, deepcopy
 
 def new(asdict = False, schema = None, serializer = None, driver = None):

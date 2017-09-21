@@ -12,12 +12,10 @@ class Driver(object):
 
     @staticmethod
     def _control_str_int_key(key):
-        if not isinstance(key, str) and not isinstance(key, int):
-            raise KeyError('Forbidden key type "{}"'.format(type(key)))
-        if isinstance(key, int):
-            return
         if isinstance(key, str) and not key:
-            raise KeyError('Key cannot be an empty string')
+            raise KeyError('Key cannot be an empty string') 
+        if not isinstance(key, str) and not isinstance(key, int):
+            raise KeyError('Forbidden key type "{}"'.format(type(key)))       
 
     @classmethod
     def _control_startswith(cls, key):
