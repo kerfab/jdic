@@ -78,7 +78,7 @@ Here are the useful operations Jdic can do for you:
 
 ### Match an object against a MongoDB-like query (useful for rules/filtering engines)
 
-    paths = [m.path for m in j.find_match({"c": {"$gt": 0}}) ] # match() and find_match() support mongo-like queries
+    paths = [m.path for m in j.find_match({"c": {"$gt": 0}}) ] # Support of Mongo-like queries
     >>> ["a.b"]
 
     paths = [m.path for m in j.find_match({  # Complex Mongo-like queries are permitted
