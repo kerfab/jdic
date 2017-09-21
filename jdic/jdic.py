@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*- 
 """
 The Jdic module provides the features required to manipulate
 JSON objects through a consistent API.
@@ -40,8 +39,7 @@ class MatchResult(object):
         return str(self._obj)
 
     def __iter__(self):
-        for entry in self._obj.__iter__():
-            yield entry
+        yield from self._obj.__iter__()
 
     def __getitem__(self, item):
         return self._obj[item]
@@ -158,8 +156,7 @@ class Jdic(object):
         return self._obj[int(item)]
 
     def __iter__(self):
-        for entry in self._obj.__iter__():
-            yield entry
+        yield from self._obj.__iter__()
 
     def __len__(self):
         return len(self._obj)
@@ -375,8 +372,7 @@ class Jdic(object):
                 yield MatchResult(parent=self, parent_path=self._path, key=key,
                                   value=val, path=path, depth=self._depth)
             if isinstance(val, Jdic):
-                for entry in val.browse(sort=sort, depth=depth, maxdepth=maxdepth, _start=False):
-                    yield entry
+                yield from val.browse(sort=sort, depth=depth, maxdepth=maxdepth, _start=False)
 
     def checksum(self, algo='sha256'):
         """ Returns an ASCII hexadecimal checksum representing the state of the object """
@@ -421,8 +417,7 @@ class Jdic(object):
 
     def enumerate(self, sort=False):
         """ Yields a key, value pair with both Jdic Mappings and Sequences """
-        for entry in jdic_enumerate(self._obj, sort=sort):
-            yield entry
+        yield from jdic_enumerate(self._obj, sort=sort):
 
     def find(self, value, limit=None, sort=False, depth=None, maxdepth=None):
         """ Finds a value within the Jdic object, the search is recursive """

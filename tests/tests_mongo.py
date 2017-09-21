@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from jdic import settings, jdic, JdicSequence
 from copy import copy, deepcopy
 
@@ -6,7 +5,7 @@ settings.json_path_driver = "mongo"
 
 def new(asdict = False, schema = None, serializer = None, driver = None):
     o = {
-        1 : u'éàè',
+        1 : 'éàè',
         2 : Exception('TestSerialize', 'Just a test'),
         3 : { None : 0 },
         None : { "None" },
