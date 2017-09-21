@@ -8,7 +8,7 @@ import importlib
 from collections import Sequence, Mapping
 import json_delta
 import jsonschema
-import jdic.drivers # pylint: disable=unused-import
+from . import drivers # pylint: disable=unused-import
 from . import settings
 
 
