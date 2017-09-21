@@ -417,7 +417,7 @@ class Jdic(object):
 
     def enumerate(self, sort=False):
         """ Yields a key, value pair with both Jdic Mappings and Sequences """
-        yield from jdic_enumerate(self._obj, sort=sort):
+        yield from jdic_enumerate(self._obj, sort=sort)
 
     def find(self, value, limit=None, sort=False, depth=None, maxdepth=None):
         """ Finds a value within the Jdic object, the search is recursive """
