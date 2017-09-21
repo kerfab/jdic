@@ -6,7 +6,7 @@ settings.json_path_driver = "mongo"
 
 def new(asdict = False, schema = None, serializer = None, driver = None):
     o = {
-        1 : 'éàè',
+        1 : u'éàè',
         2 : Exception('TestSerialize', 'Just a test'),
         3 : { None : 0 },
         None : { "None" },
