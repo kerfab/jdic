@@ -28,7 +28,7 @@ JSON_LEAVES = [
 class MatchResult(object):
     """ Wraps the results of searches and browses within Jdic objects """
     # pylint: disable=too-few-public-methods
-    
+
     def __init__(self, **kwargs):
         self._obj = {}
         for k in kwargs:
@@ -491,9 +491,11 @@ class Jdic(object):
         """ Returns True if the object matches against query, False otherwise """
         return self._match(self._obj, query)
 
-    def merge(self, *args, arr_mode="replace"):
+    def merge(self, objs, arr_mode="replace"):
         """ Make a deep merge of the current Jdic object with one or more objects """
-        for with_obj in args:
+        if not isinstance(objs, list):
+            objs = [objs]
+        for with_obj in objs:
             if (isinstance(with_obj, Mapping) and not isinstance(self._obj, Mapping)) or\
                (not isinstance(with_obj, Mapping) and isinstance(self._obj, Mapping)):
                 raise TypeError('Cannot merge "{}" with "{}"'.format(

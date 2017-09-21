@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from jdic import settings, jdic, JdicSequence
 from copy import copy, deepcopy
 

@@ -436,16 +436,16 @@ subdocuments. The current ``match()`` implementation is supported by the
 
 -  ``query``: a Mongo-like query object
 
-``merge(*objs, arr_mode="replace")``
+``merge(objs, arr_mode="replace")``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Will merge the current Jdic with one or multiple other objects (dicts or
 lists). It is not possible to merge a Jdic of type Mapping (dict) with a
 Sequence (list) or vice-versa. This limitation does not apply to
-sub-documents. Note that, unlike ``patch()``, the method will change the
-state of the current object. If multiple args are provided then the next
-obj in ``objs`` is merged on the result of the previous merge operation,
-allowing to chain the merges.
+sub-documents, where a type replaces another. Note that, unlike ``patch()``,
+the method will change the state of the current object. If multiple args are
+provided then the next obj in ``objs`` is merged on the result of the previous
+merge operation, allowing to chain the merges.
 
 -  ``objs``: one or multiple objects of a similar type as the Jdic
    object itself.
