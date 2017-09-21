@@ -4,42 +4,32 @@ from os import path
 
 here = path.abspath(path.dirname(__file__))
 
-with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
+with open(path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
 setup(
-
-    name='sample',
-    version='1.0.0',
-    description='Jdic facilitates manipulation of Json-like objects',
-    long_description=long_description,
-    url='https://github.com/kerfab/jdic/',
-    author='Fabien Kerbouci',
-    author_email='fkerbouci@gmail.com',
-    license='Unlicense',
-
+    name='jdic',
+    version=read_file("VERSION.txt"),
     classifiers=[
-        'Development Status :: 5 - Production/Stable',
-        'Intended Audience :: Developers',
-        'Topic :: Software Development :: Build Tools',
-        'License :: OSI Approved :: Unlicense License',
-
-        'Programming Language :: Python :: 3.4',
-        'Programming Language :: Python :: 3.5',
-        'Programming Language :: Python :: 3.6'
+        "Programming Language :: Python",
+        "Development Status :: 5 - Production/Stable",
+        "Programming Language :: Python :: 2",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: Implementation :: CPython",
+        "Topic :: Utilities"
     ],
-
-    keywords='json dict path diff match',
-
-    packages=find_packages(exclude=['contrib', 'docs', 'tests']),
-
-    install_requires=['mongoquery', 'json_delta', 'jsonschema', 'jsonpath_ng'],
-
-    extras_require={},
-
-    package_data={},
-
-    data_files=[],
-
-    entry_points={}
+    author='Fabien Kerbouci',
+    description="A ready-to-use library which eases the manipulation "
+                "of JSON-like documents, so that you can focus on "
+                "logic instead of losing time in formal document manipulations."
+                "Jdic offers original features, but also embeds mission-critical " 
+                "3rd party libraries and unite them all within a comprehensive "
+                "easy-to-use API."
+    long_description=README,
+    author_email='',
+    url='https://github.com/kerfab/jdic',
+    keywords='jdic json checksum diff patch find match mongo mongodb path',
+    packages=find_packages(exclude=['tests']),
+    include_package_data=True,
+    zip_safe=False
 )
