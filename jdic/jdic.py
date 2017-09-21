@@ -3,6 +3,7 @@
 The Jdic module provides the features required to manipulate
 JSON objects through a consistent API.
 """
+from __future__ import unicode_literals
 import json
 import hashlib
 import importlib
@@ -11,7 +12,6 @@ import json_delta
 import jsonschema
 from . import drivers # pylint: disable=unused-import
 from . import settings
-
 
 JSON_ITERABLES = [
     Mapping,
